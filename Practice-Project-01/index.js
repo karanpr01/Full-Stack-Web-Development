@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const fs = require('fs')
+const fs = require('fs');
+const { log } = require('console');
 
 
 app.use(express.json());
@@ -27,7 +28,17 @@ app.get("/file/:filename", (req,res) => {
     fs.readFile(`./files/${req.params.filename}`,"utf-8", function(err, filedata) {
         res.render('show',{filename: req.params.filename, filedata: filedata})
     })   
-})
+});
+
+app.get("/edit/:filename", (req,res) => {
+   res.render('edit',{filename: req.params.filename}) 
+});
+
+app.post("/edit",(req,res) => {
+    fs.rename(`./files/${req.body.pervious}`,`./files/${req.body.new}`,(err) => {
+        res.redirect("/");
+    });
+});
 
 app.get("/profile/:username", (req, res) => {
     res.send(`<h1> Hello ${req.params.username}! </h1>`)
