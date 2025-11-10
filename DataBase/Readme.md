@@ -33,3 +33,4 @@
 
 - And ``` CRUD ``` Create,Read,UPdate and Delete.
 
+- Data Association 
