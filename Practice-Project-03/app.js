@@ -59,7 +59,7 @@ app.post("/login", async (req,res) => {
     if(result){
         let token = jwt.sign({email: email, userId: user._id}, "secret");
         res.cookie("token", token);
-        res.render("home",{user})
+        res.status(200).redirect("/profile")
         // res.send(`<h1> Welcome ${user.name}! `)
     }else {
         res.redirect("login")
@@ -74,7 +74,7 @@ app.post("/login", async (req,res) => {
 
 function isLoggedIn (req, res, next){
     if(req.cookies.token === ""){
-        res.send("You Must be LoggedIn")
+        res.redirect("/login")
     }else {
         let data = jwt.verify(req.cookies.token, "secret");
         req.user = data;
@@ -86,10 +86,52 @@ function isLoggedIn (req, res, next){
 
 
 
-app.get("/profile", isLoggedIn, (req,res) => {
-    res.send(req.user)
+app.get("/profile", isLoggedIn, async (req,res) => {
+    let user = await userModel.findOne({email: req.user.email}).populate("posts");
+
+    res.render("profile", {user}); 
+});
+
+app.post("/post", isLoggedIn, async (req,res) => {
+    let user = await userModel.findOne({email: req.user.email})
+    let {content} = req.body;
+
+    let post = await postModel.create({
+        user: user._id,
+        content
+    });
+
+    user.posts.push(post._id);
+    await user.save()
+    res.redirect("/profile")
     
-})
+});
+
+app.get("/like/:id", isLoggedIn, async (req,res) => {
+    let post = await postModel.findOne({_id: req.params.id}).populate("user");
+    
+    if(post.likes.indexOf(req.user.userId) === -1){
+        post.likes.push(req.user.userId);
+    }else{
+        post.likes.splice(post.likes.indexOf(req.user.userId), 1);
+    }
+
+    await post.save()
+    
+    res.redirect("/profile"); 
+});
+
+app.get("/edit/:id", isLoggedIn, async (req,res) => {
+    let post = await postModel.findOne({_id: req.params.id}).populate("user");
+    
+    res.render("edit",{post})
+});
+
+app.post("/update/:id", isLoggedIn, async (req,res) => {
+    let post = await postModel.findOneAndUpdate({_id: req.params.id}, {content: req.body.content});
+    
+    res.redirect("/profile")
+});
 
 app.listen(3000, (req,res) => {
     console.log("Server is Running");
