@@ -39,16 +39,20 @@
 
 - Cookie-Parser
 
+- Multer
+
 ---
 
 # 📘What I Learned
 
-- Dynamic Routing and how to get data from frontend at backend Route.
+- Dynamic Routing and how to get data from frontend at backend Route using ejs.
 
-- Setting up Parsers for form.
+- Setting up cookie Parsers for form.
 
 - Setting up EJs for EJs pages.
 
 - EJs is similar to ``` html ``` but it can perform Calculation also. It has a dynamic power which can be perform in ``` html ```.
 
 - Setting up public static files.
+
+- How to upload files using Multer Middleware.
